@@ -3,28 +3,28 @@
 // Keyboard mapping to frequencies (in Hz)
 // Using a chromatic scale starting from C4 (middle C = 261.63 Hz)
 const KEY_MAP = {
-    // Top row - higher octave
-    'Q': { freq: 523.25, color: 0 },   // C5
-    'W': { freq: 587.33, color: 1 },   // D5
-    'E': { freq: 659.25, color: 2 },   // E5
-    'R': { freq: 698.46, color: 3 },   // F5
-    'T': { freq: 783.99, color: 4 },   // G5
-    'Y': { freq: 880.00, color: 5 },   // A5
-    'U': { freq: 987.77, color: 6 },   // B5
-    'I': { freq: 1046.50, color: 7 },  // C6
-    'O': { freq: 1174.66, color: 8 },  // D6
-    'P': { freq: 1318.51, color: 9 },  // E6
+    // Home row - lower octave (WARM colors)
+    'A': { freq: 261.63, colorClass: 'warm' },      // C4
+    'S': { freq: 293.66, colorClass: 'warm' },      // D4
+    'D': { freq: 329.63, colorClass: 'mid-warm' },  // E4
+    'F': { freq: 349.23, colorClass: 'mid-warm' },  // F4
+    'G': { freq: 392.00, colorClass: 'mid' },       // G4
+    'H': { freq: 440.00, colorClass: 'mid' },       // A4
+    'J': { freq: 493.88, colorClass: 'mid-cool' },  // B4
+    'K': { freq: 523.25, colorClass: 'mid-cool' },  // C5
+    'L': { freq: 587.33, colorClass: 'cool' },      // D5
 
-    // Home row - lower octave
-    'A': { freq: 261.63, color: 10 },  // C4
-    'S': { freq: 293.66, color: 11 },  // D4
-    'D': { freq: 329.63, color: 12 },  // E4
-    'F': { freq: 349.23, color: 13 },  // F4
-    'G': { freq: 392.00, color: 14 },  // G4
-    'H': { freq: 440.00, color: 15 },  // A4
-    'J': { freq: 493.88, color: 16 },  // B4
-    'K': { freq: 523.25, color: 17 },  // C5
-    'L': { freq: 587.33, color: 18 }   // D5
+    // Top row - higher octave (COOL colors)
+    'Q': { freq: 523.25, colorClass: 'mid-cool' },  // C5
+    'W': { freq: 587.33, colorClass: 'cool' },      // D5
+    'E': { freq: 659.25, colorClass: 'cool' },      // E5
+    'R': { freq: 698.46, colorClass: 'cool' },      // F5
+    'T': { freq: 783.99, colorClass: 'cool' },      // G5
+    'Y': { freq: 880.00, colorClass: 'cool' },      // A5
+    'U': { freq: 987.77, colorClass: 'ice' },       // B5
+    'I': { freq: 1046.50, colorClass: 'ice' },      // C6
+    'O': { freq: 1174.66, colorClass: 'ice' },      // D6
+    'P': { freq: 1318.51, colorClass: 'ice' }       // E6
 };
 
 // ===== WEB AUDIO API SETUP =====
@@ -32,6 +32,7 @@ const KEY_MAP = {
 let audioContext;
 let masterGain;
 const activeOscillators = {}; // Store active oscillators by key
+const heldTimers = {}; // Timers for "held" state
 
 // Initialize audio context (needs user interaction first)
 function initAudio() {
@@ -40,10 +41,10 @@ function initAudio() {
 
         // Create master gain node for volume control
         masterGain = audioContext.createGain();
-        masterGain.gain.value = 0.3; // Overall volume (0.0 to 1.0)
+        masterGain.gain.value = 0.25; // Overall volume (0.0 to 1.0)
         masterGain.connect(audioContext.destination);
 
-        console.log('Audio initialized');
+        console.log('🎹 Audio initialized');
     }
 }
 
@@ -69,8 +70,8 @@ function playNote(key) {
     const gainNode = audioContext.createGain();
     gainNode.gain.setValueAtTime(0, audioContext.currentTime);
 
-    // Quick fade in (attack)
-    gainNode.gain.linearRampToValueAtTime(0.5, audioContext.currentTime + 0.05);
+    // Quick fade in (attack) - like a flash
+    gainNode.gain.exponentialRampToValueAtTime(0.6, audioContext.currentTime + 0.03);
 
     // Connect: oscillator -> gain -> master -> destination
     oscillator.connect(gainNode);
@@ -92,14 +93,14 @@ function stopNote(key) {
 
     const { oscillator, gainNode } = activeOscillators[key];
 
-    // Fade out (release)
+    // Slow fade out (release) - like light decay
     const currentTime = audioContext.currentTime;
     gainNode.gain.cancelScheduledValues(currentTime);
     gainNode.gain.setValueAtTime(gainNode.gain.value, currentTime);
-    gainNode.gain.linearRampToValueAtTime(0, currentTime + 0.2);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, currentTime + 0.8);
 
     // Stop oscillator after fade out
-    oscillator.stop(currentTime + 0.2);
+    oscillator.stop(currentTime + 0.8);
 
     // Clean up
     delete activeOscillators[key];
@@ -123,12 +124,12 @@ function createDots() {
     const container = document.createElement('div');
     container.style.display = 'flex';
     container.style.flexDirection = 'column';
-    container.style.gap = '60px';
+    container.style.gap = '80px';
 
     // Create top row
     const topRow = document.createElement('div');
     topRow.style.display = 'flex';
-    topRow.style.gap = '60px';
+    topRow.style.gap = '80px';
     topRow.style.justifyContent = 'center';
 
     topRowKeys.forEach(key => {
@@ -142,7 +143,7 @@ function createDots() {
     // Create bottom row
     const bottomRow = document.createElement('div');
     bottomRow.style.display = 'flex';
-    bottomRow.style.gap = '60px';
+    bottomRow.style.gap = '80px';
     bottomRow.style.justifyContent = 'center';
 
     bottomRowKeys.forEach(key => {
@@ -156,6 +157,8 @@ function createDots() {
     container.appendChild(topRow);
     container.appendChild(bottomRow);
     grid.appendChild(container);
+
+    console.log('✨ Light dots created');
 }
 
 /**
@@ -168,13 +171,9 @@ function createDot(key) {
     dot.className = 'note-dot';
     dot.dataset.key = key;
 
-    // Optional: Add key label for reference
-    // dot.textContent = key;
-    // dot.style.display = 'flex';
-    // dot.style.alignItems = 'center';
-    // dot.style.justifyContent = 'center';
-    // dot.style.color = '#666';
-    // dot.style.fontSize = '12px';
+    // Assign color theme based on frequency
+    const { colorClass } = KEY_MAP[key];
+    dot.classList.add(colorClass);
 
     return dot;
 }
@@ -184,9 +183,25 @@ function createDot(key) {
  * @param {string} key - The keyboard key
  */
 function activateDot(key) {
-    if (dotElements[key]) {
-        dotElements[key].classList.add('active');
-    }
+    if (!dotElements[key]) return;
+
+    const dot = dotElements[key];
+
+    // Remove any previous release state
+    dot.classList.remove('releasing');
+
+    // Add active class for immediate flash
+    dot.classList.add('active');
+
+    // After a short moment, add "held" class for breathing animation
+    heldTimers[key] = setTimeout(() => {
+        if (dot.classList.contains('active')) {
+            dot.classList.add('held');
+        }
+    }, 300); // 300ms delay before breathing starts
+
+    // Update scene brightness
+    updateSceneBrightness();
 }
 
 /**
@@ -194,8 +209,45 @@ function activateDot(key) {
  * @param {string} key - The keyboard key
  */
 function deactivateDot(key) {
-    if (dotElements[key]) {
-        dotElements[key].classList.remove('active');
+    if (!dotElements[key]) return;
+
+    const dot = dotElements[key];
+
+    // Clear held timer if it exists
+    if (heldTimers[key]) {
+        clearTimeout(heldTimers[key]);
+        delete heldTimers[key];
+    }
+
+    // Add releasing class for slow decay
+    dot.classList.add('releasing');
+
+    // Remove active and held classes
+    dot.classList.remove('active', 'held');
+
+    // Remove releasing class after animation completes
+    setTimeout(() => {
+        dot.classList.remove('releasing');
+    }, 1500); // Match the longest transition time in CSS
+
+    // Update scene brightness
+    updateSceneBrightness();
+}
+
+/**
+ * Update scene brightness based on number of active notes
+ */
+function updateSceneBrightness() {
+    const activeCount = Object.keys(activeOscillators).length;
+
+    // Remove all brightness classes
+    document.body.classList.remove('many-active', 'very-active');
+
+    // Add appropriate class based on active count
+    if (activeCount >= 7) {
+        document.body.classList.add('very-active');
+    } else if (activeCount >= 4) {
+        document.body.classList.add('many-active');
     }
 }
 
@@ -257,7 +309,7 @@ function handleKeyUp(e) {
  * Initialize the light piano
  */
 function init() {
-    console.log('Light Piano initializing...');
+    console.log('🎹 Light Piano initializing...');
 
     // Create visual dots
     createDots();
@@ -275,10 +327,17 @@ function init() {
                 deactivateDot(key);
             });
             pressedKeys.clear();
+
+            // Clear all held timers
+            Object.keys(heldTimers).forEach(key => {
+                clearTimeout(heldTimers[key]);
+            });
+            heldTimers.length = 0;
         }
     });
 
-    console.log('Light Piano ready! Press keys to play.');
+    console.log('✨ Light Piano ready! Press keys to play.');
+    console.log('🎵 Lower keys (A-L) = warm colors | Higher keys (Q-P) = cool colors');
 }
 
 // Start when DOM is ready
@@ -292,18 +351,24 @@ if (document.readyState === 'loading') {
 // Uncomment to enable clicking on dots to play notes
 
 /*
-document.addEventListener('click', (e) => {
+document.addEventListener('mousedown', (e) => {
     if (e.target.classList.contains('note-dot')) {
         const key = e.target.dataset.key;
-        if (key) {
+        if (key && !pressedKeys.has(key)) {
+            pressedKeys.add(key);
             playNote(key);
             activateDot(key);
+        }
+    }
+});
 
-            // Auto-release after a short time
-            setTimeout(() => {
-                stopNote(key);
-                deactivateDot(key);
-            }, 300);
+document.addEventListener('mouseup', (e) => {
+    if (e.target.classList.contains('note-dot')) {
+        const key = e.target.dataset.key;
+        if (key && pressedKeys.has(key)) {
+            pressedKeys.delete(key);
+            stopNote(key);
+            deactivateDot(key);
         }
     }
 });
