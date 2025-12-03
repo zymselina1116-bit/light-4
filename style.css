@@ -6,7 +6,7 @@
 }
 
 body {
-    /* Pure black void - the darkness where light lives */
+    /* Pure black void for maximum color contrast */
     background-color: #000000;
     overflow: hidden;
     font-family: 'Arial', sans-serif;
@@ -27,7 +27,7 @@ body {
 #note-grid {
     display: flex;
     flex-wrap: wrap;
-    gap: 120px; /* Increased spacing for isolated light orbs */
+    gap: 120px;
     justify-content: center;
     align-items: center;
     max-width: 90vw;
@@ -36,34 +36,29 @@ body {
 
 /* ===== LIGHT DOTS - INACTIVE STATE ===== */
 .note-dot {
-    /* Extremely small, nearly invisible */
-    width: 4px;
-    height: 4px;
+    /* Tiny, nearly invisible */
+    width: 5px;
+    height: 5px;
     border-radius: 50%;
 
-    /* Barely visible dim point */
+    /* Barely visible */
     background: radial-gradient(circle at center,
-        rgba(180, 180, 180, 0.12) 0%,
-        rgba(150, 150, 150, 0.06) 50%,
+        rgba(200, 200, 200, 0.1) 0%,
         transparent 100%
     );
 
-    /* Minimal presence */
-    box-shadow: 0 0 2px rgba(160, 160, 160, 0.08);
+    box-shadow: 0 0 2px rgba(180, 180, 180, 0.06);
 
-    /* Positioning for pseudo-elements */
     position: relative;
     cursor: pointer;
     user-select: none;
 
-    /* Instant attack, very slow decay */
-    transition: all 0.03s ease-out;
-
-    /* GPU acceleration */
+    /* Instant attack */
+    transition: all 0.02s ease-out;
     will-change: transform, filter;
 }
 
-/* Bloom layer 1 (::before) - Inner soft halo */
+/* Bloom layers */
 .note-dot::before {
     content: '';
     position: absolute;
@@ -75,12 +70,11 @@ body {
     border-radius: 50%;
     background: transparent;
     opacity: 0;
-    filter: blur(20px);
-    transition: all 0.05s ease-out;
+    filter: blur(30px);
+    transition: all 0.03s ease-out;
     pointer-events: none;
 }
 
-/* Bloom layer 2 (::after) - Outer atmospheric glow */
 .note-dot::after {
     content: '';
     position: absolute;
@@ -92,191 +86,186 @@ body {
     border-radius: 50%;
     background: transparent;
     opacity: 0;
-    filter: blur(60px);
-    transition: all 0.08s ease-out;
+    filter: blur(80px);
+    transition: all 0.05s ease-out;
     pointer-events: none;
 }
 
-/* ===== ACTIVE STATE - PHOTOGRAPHIC LIGHT SOURCE ===== */
+/* ===== ACTIVE STATE - VIBRANT COLORED LIGHT ===== */
 .note-dot.active {
-    /* Small bright core (minimal scale) */
-    width: 10px;
-    height: 10px;
-    transform: scale(1);
+    /* Small bright white core */
+    width: 8px;
+    height: 8px;
+    transform: scale(1.1);
 
-    /* Overexposed white core with subtle color tint */
+    /* Pure white overexposed center */
     background: radial-gradient(circle at center,
         rgba(255, 255, 255, 1) 0%,
-        rgba(255, 255, 255, 0.98) 15%,
-        rgba(255, 255, 255, 0.9) 30%,
-        var(--color-tint, rgba(255, 255, 255, 0.7)) 60%,
+        rgba(255, 255, 255, 0.95) 30%,
+        rgba(255, 255, 255, 0.8) 60%,
         transparent 100%
     );
 
-    /* Clean white-to-pastel bloom (inverse square falloff) */
+    /* White core + vibrant colored bloom */
     box-shadow:
-        /* Intense core */
-        0 0 8px rgba(255, 255, 255, 1),
-        0 0 16px rgba(255, 255, 255, 0.9),
+        /* Intense white core */
+        0 0 6px rgba(255, 255, 255, 1),
+        0 0 12px rgba(255, 255, 255, 1),
+        0 0 20px rgba(255, 255, 255, 0.9),
 
-        /* Inner bloom - almost white */
-        0 0 30px rgba(255, 255, 255, 0.7),
-        0 0 50px var(--color-inner, rgba(255, 255, 255, 0.5)),
+        /* Bright inner color halo */
+        0 0 35px var(--color-bright, #ffffff),
+        0 0 60px var(--color-bright, #ffffff),
+        0 0 90px var(--color-bright, #ffffff),
 
-        /* Mid bloom - subtle pastel */
-        0 0 90px var(--color-mid, rgba(255, 255, 255, 0.35)),
-        0 0 140px var(--color-mid, rgba(255, 255, 255, 0.25)),
+        /* Medium color diffusion */
+        0 0 130px var(--color-medium, #ffffff),
+        0 0 180px var(--color-medium, #ffffff),
 
-        /* Outer bloom - very faint atmospheric */
-        0 0 200px var(--color-outer, rgba(255, 255, 255, 0.15)),
-        0 0 280px var(--color-outer, rgba(255, 255, 255, 0.08)),
+        /* Outer soft glow */
+        0 0 250px var(--color-soft, #ffffff),
+        0 0 350px var(--color-soft, #ffffff);
 
-        /* Far reach - like fog catching light */
-        0 0 380px var(--color-far, rgba(255, 255, 255, 0.04));
+    filter: brightness(1.2);
+    transition: all 0.02s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
 
-    /* Subtle filmic bloom */
-    filter: brightness(1.15);
+/* Inner colored halo */
+.note-dot.active::before {
+    width: 1000%;
+    height: 1000%;
+    opacity: 0.4;
 
-    /* Fast attack */
+    background: radial-gradient(circle at center,
+        var(--color-bright, rgba(255, 255, 255, 0.6)) 0%,
+        var(--color-medium, rgba(255, 255, 255, 0.4)) 30%,
+        var(--color-soft, rgba(255, 255, 255, 0.2)) 60%,
+        transparent 100%
+    );
+
+    filter: blur(60px);
     transition: all 0.03s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* Inner bloom layer - soft pastel halo */
-.note-dot.active::before {
-    width: 800%;
-    height: 800%;
+/* Outer atmospheric glow */
+.note-dot.active::after {
+    width: 1500%;
+    height: 1500%;
     opacity: 0.25;
 
     background: radial-gradient(circle at center,
-        var(--color-inner, rgba(255, 255, 255, 0.4)) 0%,
-        var(--color-mid, rgba(255, 255, 255, 0.25)) 25%,
-        var(--color-outer, rgba(255, 255, 255, 0.12)) 50%,
-        transparent 75%
+        var(--color-medium, rgba(255, 255, 255, 0.3)) 0%,
+        var(--color-soft, rgba(255, 255, 255, 0.15)) 40%,
+        transparent 80%
     );
 
-    filter: blur(50px);
+    filter: blur(120px);
     transition: all 0.05s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* Outer atmospheric bloom - very soft diffusion */
-.note-dot.active::after {
-    width: 1200%;
-    height: 1200%;
-    opacity: 0.15;
-
-    background: radial-gradient(circle at center,
-        var(--color-mid, rgba(255, 255, 255, 0.2)) 0%,
-        var(--color-outer, rgba(255, 255, 255, 0.1)) 30%,
-        var(--color-far, rgba(255, 255, 255, 0.05)) 60%,
-        transparent 100%
-    );
-
-    filter: blur(100px);
-    transition: all 0.08s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-/* ===== HELD STATE - GENTLE BREATHING ===== */
-@keyframes gentleBreathe {
+/* ===== HELD STATE - GENTLE PULSE ===== */
+@keyframes colorPulse {
     0%, 100% {
-        filter: brightness(1.15);
+        filter: brightness(1.2);
+        transform: scale(1.1);
     }
     50% {
-        filter: brightness(1.25);
+        filter: brightness(1.4);
+        transform: scale(1.15);
     }
 }
 
-.note-dot.active.held::before {
-    animation: gentleBreathe 3s ease-in-out infinite;
+.note-dot.active.held {
+    animation: colorPulse 2.5s ease-in-out infinite;
 }
 
-/* ===== RELEASE STATE - PHOTOGRAPHIC DECAY ===== */
+/* ===== RELEASE STATE - COLOR FADE ===== */
 .note-dot.releasing {
-    /* Very slow fade like long-exposure afterglow */
     transition:
-        transform 1.2s cubic-bezier(0.16, 1, 0.3, 1),
-        background 1.8s ease-out,
-        box-shadow 2.5s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 1s ease-out,
+        background 2s ease-out,
+        box-shadow 2.5s ease-out,
         filter 1.5s ease-out,
-        width 1.2s ease-out,
-        height 1.2s ease-out;
+        width 1s ease-out,
+        height 1s ease-out;
 }
 
 .note-dot.releasing::before {
-    transition: all 2.5s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: all 2.5s ease-out;
 }
 
 .note-dot.releasing::after {
-    transition: all 3s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: all 3s ease-out;
 }
 
-/* ===== PASTEL COLOR THEMES (CLEAN & LUMINOUS) ===== */
+/* ===== VIBRANT JEWEL-TONE COLOR PALETTE ===== */
 
-/* Very warm - Soft rose & peach */
-.note-dot.very-warm {
-    --color-tint: rgba(255, 240, 235, 0.8);
-    --color-inner: rgba(255, 220, 200, 0.5);
-    --color-mid: rgba(255, 180, 150, 0.35);
-    --color-outer: rgba(255, 140, 120, 0.2);
-    --color-far: rgba(255, 120, 100, 0.08);
+/* CYAN - Bright electric blue-green */
+.note-dot.cyan {
+    --color-bright: rgb(111, 255, 255);    /* #6FFFFF */
+    --color-medium: rgba(111, 255, 255, 0.6);
+    --color-soft: rgba(111, 255, 255, 0.3);
 }
 
-/* Warm - Soft gold & amber */
-.note-dot.warm {
-    --color-tint: rgba(255, 250, 235, 0.8);
-    --color-inner: rgba(255, 235, 200, 0.5);
-    --color-mid: rgba(255, 210, 160, 0.35);
-    --color-outer: rgba(255, 190, 130, 0.2);
-    --color-far: rgba(255, 170, 100, 0.08);
+/* MAGENTA - Hot pink-purple */
+.note-dot.magenta {
+    --color-bright: rgb(255, 77, 255);     /* #FF4DFF */
+    --color-medium: rgba(255, 77, 255, 0.6);
+    --color-soft: rgba(255, 77, 255, 0.3);
 }
 
-/* Mid-warm - Soft yellow & cream */
-.note-dot.mid-warm {
-    --color-tint: rgba(255, 255, 240, 0.8);
-    --color-inner: rgba(255, 250, 220, 0.5);
-    --color-mid: rgba(255, 240, 190, 0.35);
-    --color-outer: rgba(250, 230, 170, 0.2);
-    --color-far: rgba(245, 220, 150, 0.08);
+/* DEEP MAGENTA - Darker magenta */
+.note-dot.deep-magenta {
+    --color-bright: rgb(220, 30, 220);
+    --color-medium: rgba(220, 30, 220, 0.6);
+    --color-soft: rgba(220, 30, 220, 0.3);
 }
 
-/* Mid - Soft mint & sage */
-.note-dot.mid {
-    --color-tint: rgba(240, 255, 245, 0.8);
-    --color-inner: rgba(220, 255, 235, 0.5);
-    --color-mid: rgba(200, 245, 220, 0.35);
-    --color-outer: rgba(180, 235, 210, 0.2);
-    --color-far: rgba(160, 225, 200, 0.08);
+/* VIOLET - Purple-blue */
+.note-dot.violet {
+    --color-bright: rgb(160, 96, 255);     /* #A060FF */
+    --color-medium: rgba(160, 96, 255, 0.6);
+    --color-soft: rgba(160, 96, 255, 0.3);
 }
 
-/* Mid-cool - Soft sky blue & lavender */
-.note-dot.mid-cool {
-    --color-tint: rgba(240, 245, 255, 0.8);
-    --color-inner: rgba(225, 235, 255, 0.5);
-    --color-mid: rgba(210, 225, 250, 0.35);
-    --color-outer: rgba(195, 215, 245, 0.2);
-    --color-far: rgba(180, 205, 240, 0.08);
+/* BLUE - Sky blue */
+.note-dot.blue {
+    --color-bright: rgb(95, 179, 255);     /* #5FB3FF */
+    --color-medium: rgba(95, 179, 255, 0.6);
+    --color-soft: rgba(95, 179, 255, 0.3);
 }
 
-/* Cool - Soft lavender & lilac */
-.note-dot.cool {
-    --color-tint: rgba(245, 240, 255, 0.8);
-    --color-inner: rgba(235, 225, 255, 0.5);
-    --color-mid: rgba(225, 210, 250, 0.35);
-    --color-outer: rgba(215, 195, 245, 0.2);
-    --color-far: rgba(205, 180, 240, 0.08);
+/* YELLOW - Citrus yellow */
+.note-dot.yellow {
+    --color-bright: rgb(255, 230, 90);     /* #FFE65A */
+    --color-medium: rgba(255, 230, 90, 0.6);
+    --color-soft: rgba(255, 230, 90, 0.3);
 }
 
-/* Ice - Soft cyan & white */
-.note-dot.ice {
-    --color-tint: rgba(245, 250, 255, 0.8);
-    --color-inner: rgba(235, 245, 255, 0.5);
-    --color-mid: rgba(220, 240, 255, 0.35);
-    --color-outer: rgba(210, 235, 255, 0.2);
-    --color-far: rgba(200, 230, 255, 0.08);
+/* ORANGE - Warm orange */
+.note-dot.orange {
+    --color-bright: rgb(255, 182, 90);     /* #FFB65A */
+    --color-medium: rgba(255, 182, 90, 0.6);
+    --color-soft: rgba(255, 182, 90, 0.3);
 }
 
-/* ===== ADDITIVE BLENDING - TRUE LIGHT PHYSICS ===== */
+/* ROSE - Pink-red */
+.note-dot.rose {
+    --color-bright: rgb(255, 95, 138);     /* #FF5F8A */
+    --color-medium: rgba(255, 95, 138, 0.6);
+    --color-soft: rgba(255, 95, 138, 0.3);
+}
+
+/* GREEN - Mint green */
+.note-dot.green {
+    --color-bright: rgb(125, 255, 147);    /* #7DFF93 */
+    --color-medium: rgba(125, 255, 147, 0.6);
+    --color-soft: rgba(125, 255, 147, 0.3);
+}
+
+/* ===== ADDITIVE BLENDING ===== */
 .note-dot {
-    /* Screen blend for additive light behavior */
+    /* Screen blend mode for additive color mixing */
     mix-blend-mode: screen;
     isolation: isolate;
 }
@@ -315,41 +304,39 @@ body {
     pointer-events: none;
 }
 
-/* ===== SCENE BRIGHTNESS BOOST ===== */
-/* Subtle ambient lift when many lights are active */
+/* ===== SCENE BRIGHTNESS ===== */
 body.many-active {
-    background-color: #050505;
+    background-color: #030303;
 }
 
 body.very-active {
-    background-color: #0a0a0a;
+    background-color: #060606;
 }
 
-/* ===== RESPONSIVE ADJUSTMENTS ===== */
+/* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
     #note-grid {
-        gap: 80px;
+        gap: 90px;
     }
 
     .note-dot {
-        width: 3px;
-        height: 3px;
+        width: 4px;
+        height: 4px;
     }
 
     .note-dot.active {
-        width: 8px;
-        height: 8px;
+        width: 7px;
+        height: 7px;
     }
 
-    /* Reduce bloom on mobile for performance */
     .note-dot.active::before {
-        width: 600%;
-        height: 600%;
+        width: 800%;
+        height: 800%;
     }
 
     .note-dot.active::after {
-        width: 900%;
-        height: 900%;
+        width: 1200%;
+        height: 1200%;
     }
 }
 

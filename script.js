@@ -1,51 +1,51 @@
 // ===== CONFIGURATION =====
 
-// Keyboard mapping to frequencies (in Hz)
-// Full chromatic scale covering ~3.5 octaves (C2 to A6)
+// Keyboard mapping to frequencies (in Hz) with VIBRANT COLOR ASSIGNMENT
+// Each key gets its own jewel-tone color for maximum visual variety
 // 35 keys total across 4 rows
 const KEY_MAP = {
-    // ===== ROW 4 (Numbers) - VERY LOW BASS NOTES (C2-C3) =====
-    '1': { freq: 65.41,  colorClass: 'very-warm' },  // C2
-    '2': { freq: 73.42,  colorClass: 'very-warm' },  // D2
-    '3': { freq: 82.41,  colorClass: 'very-warm' },  // E2
-    '4': { freq: 87.31,  colorClass: 'very-warm' },  // F2
-    '5': { freq: 98.00,  colorClass: 'very-warm' },  // G2
-    '6': { freq: 110.00, colorClass: 'very-warm' },  // A2
-    '7': { freq: 123.47, colorClass: 'very-warm' },  // B2
-    '8': { freq: 130.81, colorClass: 'warm' },       // C3
+    // ===== ROW 4 (Numbers) - BASS NOTES with RAINBOW SPECTRUM =====
+    '1': { freq: 65.41,  colorClass: 'deep-magenta' },  // C2
+    '2': { freq: 73.42,  colorClass: 'rose' },          // D2
+    '3': { freq: 82.41,  colorClass: 'orange' },        // E2
+    '4': { freq: 87.31,  colorClass: 'yellow' },        // F2
+    '5': { freq: 98.00,  colorClass: 'green' },         // G2
+    '6': { freq: 110.00, colorClass: 'cyan' },          // A2
+    '7': { freq: 123.47, colorClass: 'blue' },          // B2
+    '8': { freq: 130.81, colorClass: 'violet' },        // C3
 
-    // ===== ROW 1 (Z-M) - LOW NOTES (C3-B3) =====
-    'Z': { freq: 130.81, colorClass: 'warm' },       // C3
-    'X': { freq: 146.83, colorClass: 'warm' },       // D3
-    'C': { freq: 164.81, colorClass: 'warm' },       // E3
-    'V': { freq: 174.61, colorClass: 'warm' },       // F3
-    'B': { freq: 196.00, colorClass: 'warm' },       // G3
-    'N': { freq: 220.00, colorClass: 'mid-warm' },   // A3
-    'M': { freq: 246.94, colorClass: 'mid-warm' },   // B3
+    // ===== ROW 1 (Z-M) - LOW NOTES =====
+    'Z': { freq: 130.81, colorClass: 'magenta' },       // C3
+    'X': { freq: 146.83, colorClass: 'rose' },          // D3
+    'C': { freq: 164.81, colorClass: 'orange' },        // E3
+    'V': { freq: 174.61, colorClass: 'yellow' },        // F3
+    'B': { freq: 196.00, colorClass: 'green' },         // G3
+    'N': { freq: 220.00, colorClass: 'cyan' },          // A3
+    'M': { freq: 246.94, colorClass: 'blue' },          // B3
 
-    // ===== ROW 2 (A-;) - MIDDLE NOTES (C4-E5) =====
-    'A': { freq: 261.63, colorClass: 'mid-warm' },   // C4 (Middle C)
-    'S': { freq: 293.66, colorClass: 'mid-warm' },   // D4
-    'D': { freq: 329.63, colorClass: 'mid' },        // E4
-    'F': { freq: 349.23, colorClass: 'mid' },        // F4
-    'G': { freq: 392.00, colorClass: 'mid' },        // G4
-    'H': { freq: 440.00, colorClass: 'mid' },        // A4
-    'J': { freq: 493.88, colorClass: 'mid-cool' },   // B4
-    'K': { freq: 523.25, colorClass: 'mid-cool' },   // C5
-    'L': { freq: 587.33, colorClass: 'mid-cool' },   // D5
-    ';': { freq: 659.25, colorClass: 'cool' },       // E5
+    // ===== ROW 2 (A-;) - MIDDLE NOTES =====
+    'A': { freq: 261.63, colorClass: 'violet' },        // C4 (Middle C)
+    'S': { freq: 293.66, colorClass: 'magenta' },       // D4
+    'D': { freq: 329.63, colorClass: 'rose' },          // E4
+    'F': { freq: 349.23, colorClass: 'orange' },        // F4
+    'G': { freq: 392.00, colorClass: 'yellow' },        // G4
+    'H': { freq: 440.00, colorClass: 'green' },         // A4
+    'J': { freq: 493.88, colorClass: 'cyan' },          // B4
+    'K': { freq: 523.25, colorClass: 'blue' },          // C5
+    'L': { freq: 587.33, colorClass: 'violet' },        // D5
+    ';': { freq: 659.25, colorClass: 'magenta' },       // E5
 
-    // ===== ROW 3 (Q-P) - HIGH NOTES (F5-A6) =====
-    'Q': { freq: 698.46,  colorClass: 'cool' },      // F5
-    'W': { freq: 783.99,  colorClass: 'cool' },      // G5
-    'E': { freq: 880.00,  colorClass: 'cool' },      // A5
-    'R': { freq: 987.77,  colorClass: 'cool' },      // B5
-    'T': { freq: 1046.50, colorClass: 'ice' },       // C6
-    'Y': { freq: 1174.66, colorClass: 'ice' },       // D6
-    'U': { freq: 1318.51, colorClass: 'ice' },       // E6
-    'I': { freq: 1396.91, colorClass: 'ice' },       // F6
-    'O': { freq: 1567.98, colorClass: 'ice' },       // G6
-    'P': { freq: 1760.00, colorClass: 'ice' }        // A6
+    // ===== ROW 3 (Q-P) - HIGH NOTES =====
+    'Q': { freq: 698.46,  colorClass: 'rose' },         // F5
+    'W': { freq: 783.99,  colorClass: 'orange' },       // G5
+    'E': { freq: 880.00,  colorClass: 'yellow' },       // A5
+    'R': { freq: 987.77,  colorClass: 'green' },        // B5
+    'T': { freq: 1046.50, colorClass: 'cyan' },         // C6
+    'Y': { freq: 1174.66, colorClass: 'blue' },         // D6
+    'U': { freq: 1318.51, colorClass: 'violet' },       // E6
+    'I': { freq: 1396.91, colorClass: 'magenta' },      // F6
+    'O': { freq: 1567.98, colorClass: 'rose' },         // G6
+    'P': { freq: 1760.00, colorClass: 'orange' }        // A6
 };
 
 // ===== WEB AUDIO API SETUP =====
@@ -173,11 +173,10 @@ function createDots() {
 
     grid.appendChild(container);
 
-    console.log('✨ Light dots created: 35 keys across 4 rows');
-    console.log('   Row 4: 1-8 (Bass C2-C3)');
-    console.log('   Row 3: Q-P (High F5-A6)');
-    console.log('   Row 2: A-; (Mid C4-E5)');
-    console.log('   Row 1: Z-M (Low C3-B3)');
+    console.log('✨ Colorful light orbs created: 35 keys');
+    console.log('🌈 Each key has its own vibrant color!');
+    console.log('   Row 4 (1-8): Rainbow spectrum');
+    console.log('   Rows 1-3: Jewel-tone variety');
 }
 
 /**
@@ -190,7 +189,7 @@ function createDot(key) {
     dot.className = 'note-dot';
     dot.dataset.key = key;
 
-    // Assign color theme based on frequency
+    // Assign vibrant color theme
     const { colorClass } = KEY_MAP[key];
     dot.classList.add(colorClass);
 
@@ -247,7 +246,7 @@ function deactivateDot(key) {
     // Remove releasing class after animation completes
     setTimeout(() => {
         dot.classList.remove('releasing');
-    }, 1500); // Match the longest transition time in CSS
+    }, 2500); // Match decay time
 
     // Update scene brightness
     updateSceneBrightness();
@@ -330,7 +329,7 @@ function handleKeyUp(e) {
  * Initialize the light piano
  */
 function init() {
-    console.log('🎹 Light Piano initializing...');
+    console.log('🎹 Colorful Light Piano initializing...');
 
     // Create visual dots
     createDots();
@@ -357,12 +356,9 @@ function init() {
         }
     });
 
-    console.log('✨ Light Piano ready! Press keys to play.');
-    console.log('🎵 35 keys mapped:');
-    console.log('   1-8: Deep bass (C2-C3) - Deep red/orange');
-    console.log('   Z-M: Low notes (C3-B3) - Warm orange');
-    console.log('   A-;: Middle (C4-E5) - Yellow-green-cyan');
-    console.log('   Q-P: High notes (F5-A6) - Blue-purple-ice');
+    console.log('✨ Colorful Light Piano ready!');
+    console.log('🌈 35 vibrant colors mapped to keys');
+    console.log('   Each key produces its own jewel-tone glow!');
 }
 
 // Start when DOM is ready
