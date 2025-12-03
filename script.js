@@ -1,396 +1,424 @@
 // ===== CONFIGURATION =====
 
-// Keyboard mapping to frequencies (in Hz) with VIBRANT COLOR ASSIGNMENT
-// Each key gets its own jewel-tone color for maximum visual variety
-// 35 keys total across 4 rows
+// Keyboard mapping to frequencies
 const KEY_MAP = {
-    // ===== ROW 4 (Numbers) - BASS NOTES with RAINBOW SPECTRUM =====
-    '1': { freq: 65.41,  colorClass: 'deep-magenta' },  // C2
-    '2': { freq: 73.42,  colorClass: 'rose' },          // D2
-    '3': { freq: 82.41,  colorClass: 'orange' },        // E2
-    '4': { freq: 87.31,  colorClass: 'yellow' },        // F2
-    '5': { freq: 98.00,  colorClass: 'green' },         // G2
-    '6': { freq: 110.00, colorClass: 'cyan' },          // A2
-    '7': { freq: 123.47, colorClass: 'blue' },          // B2
-    '8': { freq: 130.81, colorClass: 'violet' },        // C3
-
-    // ===== ROW 1 (Z-M) - LOW NOTES =====
-    'Z': { freq: 130.81, colorClass: 'magenta' },       // C3
-    'X': { freq: 146.83, colorClass: 'rose' },          // D3
-    'C': { freq: 164.81, colorClass: 'orange' },        // E3
-    'V': { freq: 174.61, colorClass: 'yellow' },        // F3
-    'B': { freq: 196.00, colorClass: 'green' },         // G3
-    'N': { freq: 220.00, colorClass: 'cyan' },          // A3
-    'M': { freq: 246.94, colorClass: 'blue' },          // B3
-
-    // ===== ROW 2 (A-;) - MIDDLE NOTES =====
-    'A': { freq: 261.63, colorClass: 'violet' },        // C4 (Middle C)
-    'S': { freq: 293.66, colorClass: 'magenta' },       // D4
-    'D': { freq: 329.63, colorClass: 'rose' },          // E4
-    'F': { freq: 349.23, colorClass: 'orange' },        // F4
-    'G': { freq: 392.00, colorClass: 'yellow' },        // G4
-    'H': { freq: 440.00, colorClass: 'green' },         // A4
-    'J': { freq: 493.88, colorClass: 'cyan' },          // B4
-    'K': { freq: 523.25, colorClass: 'blue' },          // C5
-    'L': { freq: 587.33, colorClass: 'violet' },        // D5
-    ';': { freq: 659.25, colorClass: 'magenta' },       // E5
-
-    // ===== ROW 3 (Q-P) - HIGH NOTES =====
-    'Q': { freq: 698.46,  colorClass: 'rose' },         // F5
-    'W': { freq: 783.99,  colorClass: 'orange' },       // G5
-    'E': { freq: 880.00,  colorClass: 'yellow' },       // A5
-    'R': { freq: 987.77,  colorClass: 'green' },        // B5
-    'T': { freq: 1046.50, colorClass: 'cyan' },         // C6
-    'Y': { freq: 1174.66, colorClass: 'blue' },         // D6
-    'U': { freq: 1318.51, colorClass: 'violet' },       // E6
-    'I': { freq: 1396.91, colorClass: 'magenta' },      // F6
-    'O': { freq: 1567.98, colorClass: 'rose' },         // G6
-    'P': { freq: 1760.00, colorClass: 'orange' }        // A6
+    '1': 65.41,   '2': 73.42,   '3': 82.41,   '4': 87.31,
+    '5': 98.00,   '6': 110.00,  '7': 123.47,  '8': 130.81,
+    'Z': 130.81,  'X': 146.83,  'C': 164.81,  'V': 174.61,
+    'B': 196.00,  'N': 220.00,  'M': 246.94,
+    'A': 261.63,  'S': 293.66,  'D': 329.63,  'F': 349.23,
+    'G': 392.00,  'H': 440.00,  'J': 493.88,  'K': 523.25,
+    'L': 587.33,  ';': 659.25,
+    'Q': 698.46,  'W': 783.99,  'E': 880.00,  'R': 987.77,
+    'T': 1046.50, 'Y': 1174.66, 'U': 1318.51, 'I': 1396.91,
+    'O': 1567.98, 'P': 1760.00
 };
 
-// ===== WEB AUDIO API SETUP =====
+// ===== CANVAS SETUP =====
+
+const canvas = document.getElementById('reality-canvas');
+const ctx = canvas.getContext('2d');
+
+let width, height, centerX, centerY;
+
+function resizeCanvas() {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+    centerX = width / 2;
+    centerY = height / 2;
+}
+
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+// ===== WEB AUDIO API =====
 
 let audioContext;
 let masterGain;
-const activeOscillators = {}; // Store active oscillators by key
-const heldTimers = {}; // Timers for "held" state
+const activeOscillators = {};
 
-// Initialize audio context (needs user interaction first)
 function initAudio() {
     if (!audioContext) {
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
-
-        // Create master gain node for volume control
         masterGain = audioContext.createGain();
-        masterGain.gain.value = 0.25; // Overall volume (0.0 to 1.0)
+        masterGain.gain.value = 0.2;
         masterGain.connect(audioContext.destination);
-
-        console.log('🎹 Audio initialized');
     }
 }
 
-// ===== SOUND GENERATION =====
-
-/**
- * Play a note for the given key
- * @param {string} key - The keyboard key pressed
- */
 function playNote(key) {
     if (!KEY_MAP[key] || activeOscillators[key]) return;
+    initAudio();
 
-    initAudio(); // Ensure audio is initialized
-
-    const { freq } = KEY_MAP[key];
-
-    // Create oscillator (sound generator)
     const oscillator = audioContext.createOscillator();
-    oscillator.type = 'sine'; // Smooth sine wave (change to 'triangle', 'square', 'sawtooth' for different sounds)
-    oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
-
-    // Create gain node for this note (for fade in/out)
     const gainNode = audioContext.createGain();
+
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(KEY_MAP[key], audioContext.currentTime);
     gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.5, audioContext.currentTime + 0.03);
 
-    // Quick fade in (attack) - like a flash
-    gainNode.gain.exponentialRampToValueAtTime(0.6, audioContext.currentTime + 0.03);
-
-    // Connect: oscillator -> gain -> master -> destination
     oscillator.connect(gainNode);
     gainNode.connect(masterGain);
-
-    // Start the oscillator
     oscillator.start(audioContext.currentTime);
 
-    // Store for later stopping
     activeOscillators[key] = { oscillator, gainNode };
 }
 
-/**
- * Stop the note for the given key
- * @param {string} key - The keyboard key released
- */
 function stopNote(key) {
     if (!activeOscillators[key]) return;
 
     const { oscillator, gainNode } = activeOscillators[key];
-
-    // Slow fade out (release) - like light decay
     const currentTime = audioContext.currentTime;
+
     gainNode.gain.cancelScheduledValues(currentTime);
     gainNode.gain.setValueAtTime(gainNode.gain.value, currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.001, currentTime + 0.8);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, currentTime + 0.5);
+    oscillator.stop(currentTime + 0.5);
 
-    // Stop oscillator after fade out
-    oscillator.stop(currentTime + 0.8);
-
-    // Clean up
     delete activeOscillators[key];
 }
 
-// ===== VISUAL ELEMENTS =====
+// ===== CRACK SYSTEM =====
 
-const dotElements = {}; // Store dot elements by key
+class CrackBranch {
+    constructor(startX, startY, angle, length, width, generation = 0) {
+        this.startX = startX;
+        this.startY = startY;
+        this.angle = angle;
+        this.length = length;
+        this.width = width;
+        this.generation = generation;
+        this.growth = 0; // 0 to 1
+        this.targetGrowth = 0;
+        this.points = [];
+        this.glowIntensity = 0;
+        this.generateJaggedPath();
+    }
 
-/**
- * Create all note dots and add them to the grid
- */
-function createDots() {
-    const grid = document.getElementById('note-grid');
+    generateJaggedPath() {
+        // Create jagged, lightning-like path
+        const segments = Math.floor(this.length / 8) + 3;
+        this.points = [];
 
-    // Define all 4 keyboard rows (35 keys total)
-    const rows = [
-        { keys: ['1', '2', '3', '4', '5', '6', '7', '8'], label: 'Row 4 (Bass)' },
-        { keys: ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'], label: 'Row 3 (High)' },
-        { keys: ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ';'], label: 'Row 2 (Mid)' },
-        { keys: ['Z', 'X', 'C', 'V', 'B', 'N', 'M'], label: 'Row 1 (Low)' }
-    ];
+        for (let i = 0; i <= segments; i++) {
+            const t = i / segments;
+            const baseX = this.startX + Math.cos(this.angle) * this.length * t;
+            const baseY = this.startY + Math.sin(this.angle) * this.length * t;
 
-    // Create a container for better layout control
-    const container = document.createElement('div');
-    container.style.display = 'flex';
-    container.style.flexDirection = 'column';
-    container.style.gap = '120px'; // Isolated light orbs
+            // Add jagged offsets perpendicular to direction
+            const perpAngle = this.angle + Math.PI / 2;
+            const maxOffset = this.width * 0.5;
+            const offset = (Math.random() - 0.5) * maxOffset * (1 - Math.abs(t - 0.5) * 0.5);
 
-    // Create each row
-    rows.forEach(({ keys, label }) => {
-        const rowDiv = document.createElement('div');
-        rowDiv.style.display = 'flex';
-        rowDiv.style.gap = '120px'; // Wide spacing for photographic feel
-        rowDiv.style.justifyContent = 'center';
-        rowDiv.style.alignItems = 'center';
-        rowDiv.dataset.rowLabel = label;
-
-        keys.forEach(key => {
-            if (KEY_MAP[key]) {
-                const dot = createDot(key);
-                rowDiv.appendChild(dot);
-                dotElements[key] = dot;
-            }
-        });
-
-        container.appendChild(rowDiv);
-    });
-
-    grid.appendChild(container);
-
-    console.log('✨ Colorful light orbs created: 35 keys');
-    console.log('🌈 Each key has its own vibrant color!');
-    console.log('   Row 4 (1-8): Rainbow spectrum');
-    console.log('   Rows 1-3: Jewel-tone variety');
-}
-
-/**
- * Create a single dot element
- * @param {string} key - The keyboard key this dot represents
- * @returns {HTMLElement} - The dot element
- */
-function createDot(key) {
-    const dot = document.createElement('div');
-    dot.className = 'note-dot';
-    dot.dataset.key = key;
-
-    // Assign vibrant color theme
-    const { colorClass } = KEY_MAP[key];
-    dot.classList.add(colorClass);
-
-    return dot;
-}
-
-/**
- * Activate (glow) the dot for the given key
- * @param {string} key - The keyboard key
- */
-function activateDot(key) {
-    if (!dotElements[key]) return;
-
-    const dot = dotElements[key];
-
-    // Remove any previous release state
-    dot.classList.remove('releasing');
-
-    // Add active class for immediate flash
-    dot.classList.add('active');
-
-    // After a short moment, add "held" class for breathing animation
-    heldTimers[key] = setTimeout(() => {
-        if (dot.classList.contains('active')) {
-            dot.classList.add('held');
+            this.points.push({
+                x: baseX + Math.cos(perpAngle) * offset,
+                y: baseY + Math.sin(perpAngle) * offset
+            });
         }
-    }, 300); // 300ms delay before breathing starts
-
-    // Update scene brightness
-    updateSceneBrightness();
-}
-
-/**
- * Deactivate (dim) the dot for the given key
- * @param {string} key - The keyboard key
- */
-function deactivateDot(key) {
-    if (!dotElements[key]) return;
-
-    const dot = dotElements[key];
-
-    // Clear held timer if it exists
-    if (heldTimers[key]) {
-        clearTimeout(heldTimers[key]);
-        delete heldTimers[key];
     }
 
-    // Add releasing class for slow decay
-    dot.classList.add('releasing');
+    update(deltaTime) {
+        // Smooth growth animation
+        this.growth += (this.targetGrowth - this.growth) * deltaTime * 3;
+        this.glowIntensity *= 0.95; // Decay glow
+    }
 
-    // Remove active and held classes
-    dot.classList.remove('active', 'held');
+    pulse() {
+        this.glowIntensity = Math.min(this.glowIntensity + 0.3, 1);
+    }
 
-    // Remove releasing class after animation completes
-    setTimeout(() => {
-        dot.classList.remove('releasing');
-    }, 2500); // Match decay time
+    draw(ctx, baseGlow = 1) {
+        if (this.growth < 0.01) return;
 
-    // Update scene brightness
-    updateSceneBrightness();
-}
+        const currentLength = Math.floor(this.points.length * this.growth);
+        if (currentLength < 2) return;
 
-/**
- * Update scene brightness based on number of active notes
- * Adjusted thresholds for 35-key keyboard
- */
-function updateSceneBrightness() {
-    const activeCount = Object.keys(activeOscillators).length;
+        const glowAmount = baseGlow * (0.5 + this.glowIntensity * 0.5);
 
-    // Remove all brightness classes
-    document.body.classList.remove('many-active', 'very-active');
+        // Draw multiple glow layers for depth
+        for (let layer = 0; layer < 3; layer++) {
+            ctx.beginPath();
+            ctx.moveTo(this.points[0].x, this.points[0].y);
 
-    // Add appropriate class based on active count
-    // With 35 keys, adjusted thresholds: 6+ for "many", 12+ for "very"
-    if (activeCount >= 12) {
-        document.body.classList.add('very-active');
-    } else if (activeCount >= 6) {
-        document.body.classList.add('many-active');
+            for (let i = 1; i < currentLength; i++) {
+                ctx.lineTo(this.points[i].x, this.points[i].y);
+            }
+
+            const layerWidth = this.width * (3 - layer) * 0.5;
+            const layerAlpha = glowAmount * (layer === 0 ? 0.9 : layer === 1 ? 0.5 : 0.2);
+
+            // Inner light colors
+            const colors = [
+                `rgba(255, 255, 255, ${layerAlpha})`,
+                `rgba(0, 255, 255, ${layerAlpha * 0.6})`,
+                `rgba(255, 100, 255, ${layerAlpha * 0.4})`
+            ];
+
+            ctx.strokeStyle = colors[layer % 3];
+            ctx.lineWidth = layerWidth;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.shadowBlur = layerWidth * 4 * glowAmount;
+            ctx.shadowColor = colors[layer % 3];
+            ctx.stroke();
+        }
+
+        ctx.shadowBlur = 0;
     }
 }
 
-// ===== KEYBOARD EVENT HANDLERS =====
+class CrackSystem {
+    constructor() {
+        this.branches = [];
+        this.energy = 0; // Total accumulated stress
+        this.stage = 0; // 0: dormant, 1: initial, 2: expansion, 3: breaking, 4: explosion
+        this.pulseIntensity = 0;
+        this.explosionProgress = 0;
+        this.shakeX = 0;
+        this.shakeY = 0;
+        this.brightWorld = false;
+        this.particles = [];
+    }
 
-const pressedKeys = new Set(); // Track currently pressed keys
+    addEnergy(amount) {
+        this.energy += amount;
+        this.pulseIntensity = Math.min(this.pulseIntensity + 0.5, 1);
 
-/**
- * Handle keydown event
- * @param {KeyboardEvent} e - The keyboard event
- */
+        // Pulse all existing branches
+        this.branches.forEach(branch => branch.pulse());
+
+        // Stage progression
+        if (this.energy > 200 && this.stage < 4) {
+            this.explode();
+        } else if (this.energy > 100 && this.stage < 3) {
+            this.stage = 3;
+            this.addBranches(5);
+        } else if (this.energy > 40 && this.stage < 2) {
+            this.stage = 2;
+            this.addBranches(3);
+        } else if (this.energy > 5 && this.stage < 1) {
+            this.stage = 1;
+            this.createInitialCrack();
+        }
+
+        // Random new branches as energy builds
+        if (this.stage >= 2 && Math.random() < 0.1) {
+            this.addRandomBranch();
+        }
+    }
+
+    createInitialCrack() {
+        // First tiny crack in the center
+        const angle = Math.random() * Math.PI * 2;
+        const branch = new CrackBranch(centerX, centerY, angle, 60, 2, 0);
+        branch.targetGrowth = 1;
+        this.branches.push(branch);
+    }
+
+    addBranches(count) {
+        for (let i = 0; i < count; i++) {
+            this.addRandomBranch();
+        }
+    }
+
+    addRandomBranch() {
+        if (this.branches.length === 0) return;
+
+        // Branch off from existing cracks
+        const parent = this.branches[Math.floor(Math.random() * this.branches.length)];
+        const t = 0.3 + Math.random() * 0.5;
+        const pointIndex = Math.floor(parent.points.length * t * parent.growth);
+
+        if (pointIndex >= parent.points.length) return;
+
+        const point = parent.points[pointIndex];
+        const angleOffset = (Math.random() - 0.5) * Math.PI * 0.8;
+        const newAngle = parent.angle + angleOffset;
+        const length = 40 + Math.random() * 80 * (1 + this.energy / 100);
+        const width = 1.5 + Math.random() * 2;
+
+        const branch = new CrackBranch(point.x, point.y, newAngle, length, width, parent.generation + 1);
+        branch.targetGrowth = 1;
+        this.branches.push(branch);
+    }
+
+    explode() {
+        this.stage = 4;
+        this.explosionProgress = 0;
+
+        // Create explosion particles
+        for (let i = 0; i < 100; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = 2 + Math.random() * 8;
+            this.particles.push({
+                x: centerX,
+                y: centerY,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                life: 1,
+                size: 2 + Math.random() * 4,
+                color: ['#ffffff', '#00ffff', '#ff00ff', '#ffff00'][Math.floor(Math.random() * 4)]
+            });
+        }
+
+        // Make all branches fully visible
+        this.branches.forEach(branch => {
+            branch.targetGrowth = 1;
+            branch.glowIntensity = 1;
+        });
+    }
+
+    update(deltaTime) {
+        // Update all branches
+        this.branches.forEach(branch => branch.update(deltaTime));
+
+        // Pulse decay
+        this.pulseIntensity *= 0.9;
+
+        // Screen shake in stage 3+
+        if (this.stage >= 3) {
+            const shakeAmount = (this.stage === 3 ? 2 : 5) * this.pulseIntensity;
+            this.shakeX = (Math.random() - 0.5) * shakeAmount;
+            this.shakeY = (Math.random() - 0.5) * shakeAmount;
+        } else {
+            this.shakeX *= 0.8;
+            this.shakeY *= 0.8;
+        }
+
+        // Explosion progression
+        if (this.stage === 4) {
+            this.explosionProgress = Math.min(this.explosionProgress + deltaTime * 0.5, 1);
+
+            // Update particles
+            this.particles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.1; // Gravity
+                p.life *= 0.98;
+            });
+
+            // Transition to bright world
+            if (this.explosionProgress > 0.7) {
+                this.brightWorld = true;
+            }
+        }
+    }
+
+    draw(ctx) {
+        ctx.save();
+
+        // Apply screen shake
+        ctx.translate(this.shakeX, this.shakeY);
+
+        // Background flash during explosion
+        if (this.stage === 4) {
+            const flashIntensity = Math.sin(this.explosionProgress * Math.PI) * 0.5;
+            ctx.fillStyle = `rgba(255, 255, 255, ${flashIntensity})`;
+            ctx.fillRect(-this.shakeX, -this.shakeY, width, height);
+        }
+
+        // Draw all crack branches
+        const baseGlow = 0.5 + this.pulseIntensity * 0.5 + (this.stage / 4) * 0.5;
+        this.branches.forEach(branch => branch.draw(ctx, baseGlow));
+
+        // Draw explosion particles
+        if (this.stage === 4) {
+            this.particles.forEach(p => {
+                if (p.life < 0.01) return;
+                ctx.fillStyle = p.color.replace(')', `, ${p.life})`).replace('rgb', 'rgba');
+                ctx.shadowBlur = 20 * p.life;
+                ctx.shadowColor = p.color;
+                ctx.fillRect(p.x, p.y, p.size, p.size);
+            });
+            ctx.shadowBlur = 0;
+        }
+
+        // Bright world transition
+        if (this.brightWorld) {
+            const brightness = (this.explosionProgress - 0.7) / 0.3;
+            const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, Math.max(width, height));
+            gradient.addColorStop(0, `rgba(255, 255, 255, ${brightness})`);
+            gradient.addColorStop(0.5, `rgba(200, 255, 255, ${brightness * 0.8})`);
+            gradient.addColorStop(1, `rgba(255, 200, 255, ${brightness * 0.6})`);
+            ctx.fillStyle = gradient;
+            ctx.fillRect(-this.shakeX, -this.shakeY, width, height);
+        }
+
+        ctx.restore();
+    }
+}
+
+// ===== MAIN SYSTEM =====
+
+const crackSystem = new CrackSystem();
+let lastTime = performance.now();
+const pressedKeys = new Set();
+
+function animate(currentTime) {
+    const deltaTime = Math.min((currentTime - lastTime) / 1000, 0.1);
+    lastTime = currentTime;
+
+    // Clear canvas
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, width, height);
+
+    // Update and draw crack system
+    crackSystem.update(deltaTime);
+    crackSystem.draw(ctx);
+
+    requestAnimationFrame(animate);
+}
+
+// ===== KEYBOARD HANDLERS =====
+
 function handleKeyDown(e) {
-    // Hide instructions on first keypress
+    const key = e.key.toUpperCase();
+    if (!KEY_MAP[key] || pressedKeys.has(key)) return;
+
+    e.preventDefault();
+    pressedKeys.add(key);
+
+    // Hide instructions
     const instructions = document.getElementById('instructions');
     if (instructions && !instructions.classList.contains('hidden')) {
         instructions.classList.add('hidden');
     }
 
-    const key = e.key.toUpperCase();
-
-    // Ignore if key is not mapped or already pressed (for key repeat)
-    if (!KEY_MAP[key] || pressedKeys.has(key)) return;
-
-    // Prevent default behavior
-    e.preventDefault();
-
-    // Mark key as pressed
-    pressedKeys.add(key);
-
-    // Trigger sound and visual
+    // Play sound
     playNote(key);
-    activateDot(key);
+
+    // Add energy to crack system
+    crackSystem.addEnergy(1);
 }
 
-/**
- * Handle keyup event
- * @param {KeyboardEvent} e - The keyboard event
- */
 function handleKeyUp(e) {
     const key = e.key.toUpperCase();
-
-    // Ignore if key is not mapped
     if (!KEY_MAP[key]) return;
 
-    // Prevent default behavior
     e.preventDefault();
-
-    // Mark key as released
     pressedKeys.delete(key);
-
-    // Stop sound and visual
     stopNote(key);
-    deactivateDot(key);
 }
 
 // ===== INITIALIZATION =====
 
-/**
- * Initialize the light piano
- */
-function init() {
-    console.log('🎹 Colorful Light Piano initializing...');
+document.addEventListener('keydown', handleKeyDown);
+document.addEventListener('keyup', handleKeyUp);
 
-    // Create visual dots
-    createDots();
-
-    // Add keyboard event listeners
-    document.addEventListener('keydown', handleKeyDown);
-    document.addEventListener('keyup', handleKeyUp);
-
-    // Handle page visibility (stop all sounds when tab is hidden)
-    document.addEventListener('visibilitychange', () => {
-        if (document.hidden) {
-            // Stop all active notes
-            Object.keys(activeOscillators).forEach(key => {
-                stopNote(key);
-                deactivateDot(key);
-            });
-            pressedKeys.clear();
-
-            // Clear all held timers
-            Object.keys(heldTimers).forEach(key => {
-                clearTimeout(heldTimers[key]);
-            });
-            heldTimers.length = 0;
-        }
-    });
-
-    console.log('✨ Colorful Light Piano ready!');
-    console.log('🌈 35 vibrant colors mapped to keys');
-    console.log('   Each key produces its own jewel-tone glow!');
-}
-
-// Start when DOM is ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-} else {
-    init();
-}
-
-// ===== OPTIONAL: Mouse/Touch Support =====
-// Uncomment to enable clicking on dots to play notes
-
-/*
-document.addEventListener('mousedown', (e) => {
-    if (e.target.classList.contains('note-dot')) {
-        const key = e.target.dataset.key;
-        if (key && !pressedKeys.has(key)) {
-            pressedKeys.add(key);
-            playNote(key);
-            activateDot(key);
-        }
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        Object.keys(activeOscillators).forEach(key => stopNote(key));
+        pressedKeys.clear();
     }
 });
 
-document.addEventListener('mouseup', (e) => {
-    if (e.target.classList.contains('note-dot')) {
-        const key = e.target.dataset.key;
-        if (key && pressedKeys.has(key)) {
-            pressedKeys.delete(key);
-            stopNote(key);
-            deactivateDot(key);
-        }
-    }
-});
-*/
+// Start animation
+animate(performance.now());
+
+console.log('🎹 Reality Tear Piano initialized');
+console.log('💥 Play to crack open the darkness!');
+console.log('   Stage 1: First fracture (5+ keys)');
+console.log('   Stage 2: Expansion (40+ keys)');
+console.log('   Stage 3: Breaking point (100+ keys)');
+console.log('   Stage 4: EXPLOSION (200+ keys)');

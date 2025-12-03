@@ -6,7 +6,7 @@
 }
 
 body {
-    /* Pure black void for maximum color contrast */
+    /* Pure black void */
     background-color: #000000;
     overflow: hidden;
     font-family: 'Arial', sans-serif;
@@ -14,260 +14,15 @@ body {
     height: 100vh;
 }
 
-/* ===== MAIN CONTAINER ===== */
-#piano-container {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-}
-
-#note-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 120px;
-    justify-content: center;
-    align-items: center;
-    max-width: 90vw;
-    padding: 60px;
-}
-
-/* ===== LIGHT DOTS - INACTIVE STATE ===== */
-.note-dot {
-    /* Tiny, nearly invisible */
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-
-    /* Barely visible */
-    background: radial-gradient(circle at center,
-        rgba(200, 200, 200, 0.1) 0%,
-        transparent 100%
-    );
-
-    box-shadow: 0 0 2px rgba(180, 180, 180, 0.06);
-
-    position: relative;
-    cursor: pointer;
-    user-select: none;
-
-    /* Instant attack */
-    transition: all 0.02s ease-out;
-    will-change: transform, filter;
-}
-
-/* Bloom layers */
-.note-dot::before {
-    content: '';
+/* ===== CANVAS ===== */
+#reality-canvas {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
-    border-radius: 50%;
-    background: transparent;
-    opacity: 0;
-    filter: blur(30px);
-    transition: all 0.03s ease-out;
-    pointer-events: none;
-}
-
-.note-dot::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    background: transparent;
-    opacity: 0;
-    filter: blur(80px);
-    transition: all 0.05s ease-out;
-    pointer-events: none;
-}
-
-/* ===== ACTIVE STATE - VIBRANT COLORED LIGHT ===== */
-.note-dot.active {
-    /* Small bright white core */
-    width: 8px;
-    height: 8px;
-    transform: scale(1.1);
-
-    /* Pure white overexposed center */
-    background: radial-gradient(circle at center,
-        rgba(255, 255, 255, 1) 0%,
-        rgba(255, 255, 255, 0.95) 30%,
-        rgba(255, 255, 255, 0.8) 60%,
-        transparent 100%
-    );
-
-    /* White core + vibrant colored bloom */
-    box-shadow:
-        /* Intense white core */
-        0 0 6px rgba(255, 255, 255, 1),
-        0 0 12px rgba(255, 255, 255, 1),
-        0 0 20px rgba(255, 255, 255, 0.9),
-
-        /* Bright inner color halo */
-        0 0 35px var(--color-bright, #ffffff),
-        0 0 60px var(--color-bright, #ffffff),
-        0 0 90px var(--color-bright, #ffffff),
-
-        /* Medium color diffusion */
-        0 0 130px var(--color-medium, #ffffff),
-        0 0 180px var(--color-medium, #ffffff),
-
-        /* Outer soft glow */
-        0 0 250px var(--color-soft, #ffffff),
-        0 0 350px var(--color-soft, #ffffff);
-
-    filter: brightness(1.2);
-    transition: all 0.02s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-/* Inner colored halo */
-.note-dot.active::before {
-    width: 1000%;
-    height: 1000%;
-    opacity: 0.4;
-
-    background: radial-gradient(circle at center,
-        var(--color-bright, rgba(255, 255, 255, 0.6)) 0%,
-        var(--color-medium, rgba(255, 255, 255, 0.4)) 30%,
-        var(--color-soft, rgba(255, 255, 255, 0.2)) 60%,
-        transparent 100%
-    );
-
-    filter: blur(60px);
-    transition: all 0.03s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-/* Outer atmospheric glow */
-.note-dot.active::after {
-    width: 1500%;
-    height: 1500%;
-    opacity: 0.25;
-
-    background: radial-gradient(circle at center,
-        var(--color-medium, rgba(255, 255, 255, 0.3)) 0%,
-        var(--color-soft, rgba(255, 255, 255, 0.15)) 40%,
-        transparent 80%
-    );
-
-    filter: blur(120px);
-    transition: all 0.05s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-/* ===== HELD STATE - GENTLE PULSE ===== */
-@keyframes colorPulse {
-    0%, 100% {
-        filter: brightness(1.2);
-        transform: scale(1.1);
-    }
-    50% {
-        filter: brightness(1.4);
-        transform: scale(1.15);
-    }
-}
-
-.note-dot.active.held {
-    animation: colorPulse 2.5s ease-in-out infinite;
-}
-
-/* ===== RELEASE STATE - COLOR FADE ===== */
-.note-dot.releasing {
-    transition:
-        transform 1s ease-out,
-        background 2s ease-out,
-        box-shadow 2.5s ease-out,
-        filter 1.5s ease-out,
-        width 1s ease-out,
-        height 1s ease-out;
-}
-
-.note-dot.releasing::before {
-    transition: all 2.5s ease-out;
-}
-
-.note-dot.releasing::after {
-    transition: all 3s ease-out;
-}
-
-/* ===== VIBRANT JEWEL-TONE COLOR PALETTE ===== */
-
-/* CYAN - Bright electric blue-green */
-.note-dot.cyan {
-    --color-bright: rgb(111, 255, 255);    /* #6FFFFF */
-    --color-medium: rgba(111, 255, 255, 0.6);
-    --color-soft: rgba(111, 255, 255, 0.3);
-}
-
-/* MAGENTA - Hot pink-purple */
-.note-dot.magenta {
-    --color-bright: rgb(255, 77, 255);     /* #FF4DFF */
-    --color-medium: rgba(255, 77, 255, 0.6);
-    --color-soft: rgba(255, 77, 255, 0.3);
-}
-
-/* DEEP MAGENTA - Darker magenta */
-.note-dot.deep-magenta {
-    --color-bright: rgb(220, 30, 220);
-    --color-medium: rgba(220, 30, 220, 0.6);
-    --color-soft: rgba(220, 30, 220, 0.3);
-}
-
-/* VIOLET - Purple-blue */
-.note-dot.violet {
-    --color-bright: rgb(160, 96, 255);     /* #A060FF */
-    --color-medium: rgba(160, 96, 255, 0.6);
-    --color-soft: rgba(160, 96, 255, 0.3);
-}
-
-/* BLUE - Sky blue */
-.note-dot.blue {
-    --color-bright: rgb(95, 179, 255);     /* #5FB3FF */
-    --color-medium: rgba(95, 179, 255, 0.6);
-    --color-soft: rgba(95, 179, 255, 0.3);
-}
-
-/* YELLOW - Citrus yellow */
-.note-dot.yellow {
-    --color-bright: rgb(255, 230, 90);     /* #FFE65A */
-    --color-medium: rgba(255, 230, 90, 0.6);
-    --color-soft: rgba(255, 230, 90, 0.3);
-}
-
-/* ORANGE - Warm orange */
-.note-dot.orange {
-    --color-bright: rgb(255, 182, 90);     /* #FFB65A */
-    --color-medium: rgba(255, 182, 90, 0.6);
-    --color-soft: rgba(255, 182, 90, 0.3);
-}
-
-/* ROSE - Pink-red */
-.note-dot.rose {
-    --color-bright: rgb(255, 95, 138);     /* #FF5F8A */
-    --color-medium: rgba(255, 95, 138, 0.6);
-    --color-soft: rgba(255, 95, 138, 0.3);
-}
-
-/* GREEN - Mint green */
-.note-dot.green {
-    --color-bright: rgb(125, 255, 147);    /* #7DFF93 */
-    --color-medium: rgba(125, 255, 147, 0.6);
-    --color-soft: rgba(125, 255, 147, 0.3);
-}
-
-/* ===== ADDITIVE BLENDING ===== */
-.note-dot {
-    /* Screen blend mode for additive color mixing */
-    mix-blend-mode: screen;
-    isolation: isolate;
+    display: block;
+    background-color: #000000;
 }
 
 /* ===== INSTRUCTIONS OVERLAY ===== */
@@ -277,75 +32,29 @@ body {
     left: 50%;
     transform: translate(-50%, -50%);
     text-align: center;
-    color: rgba(200, 200, 200, 0.2);
+    color: rgba(200, 200, 200, 0.3);
     pointer-events: none;
     transition: opacity 1s ease-out;
     z-index: 10;
-    text-shadow: 0 0 30px rgba(0, 0, 0, 0.9);
+    text-shadow: 0 0 20px rgba(0, 0, 0, 0.9);
 }
 
 #instructions p {
-    font-size: 16px;
+    font-size: 18px;
     margin: 14px 0;
-    letter-spacing: 4px;
-    font-weight: 200;
+    letter-spacing: 5px;
+    font-weight: 300;
 }
 
 #instructions .subtitle {
-    font-size: 12px;
+    font-size: 13px;
     margin-top: 30px;
     font-style: italic;
     letter-spacing: 3px;
-    opacity: 0.5;
+    opacity: 0.6;
 }
 
 #instructions.hidden {
     opacity: 0;
     pointer-events: none;
-}
-
-/* ===== SCENE BRIGHTNESS ===== */
-body.many-active {
-    background-color: #030303;
-}
-
-body.very-active {
-    background-color: #060606;
-}
-
-/* ===== RESPONSIVE ===== */
-@media (max-width: 768px) {
-    #note-grid {
-        gap: 90px;
-    }
-
-    .note-dot {
-        width: 4px;
-        height: 4px;
-    }
-
-    .note-dot.active {
-        width: 7px;
-        height: 7px;
-    }
-
-    .note-dot.active::before {
-        width: 800%;
-        height: 800%;
-    }
-
-    .note-dot.active::after {
-        width: 1200%;
-        height: 1200%;
-    }
-}
-
-/* ===== PERFORMANCE ===== */
-@media (prefers-reduced-motion: reduce) {
-    .note-dot,
-    .note-dot::before,
-    .note-dot::after {
-        animation: none !important;
-        transition-duration: 0.01s !important;
-    }
 }
