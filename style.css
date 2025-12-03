@@ -227,7 +227,14 @@ body {
 
 /* ===== COLOR THEMES FOR DIFFERENT NOTES ===== */
 
-/* Warm colors for low frequencies */
+/* Very warm colors for VERY low bass frequencies (C2-B2) */
+.note-dot.very-warm {
+    --color-primary: #d32f2f;    /* Deep red */
+    --color-secondary: #ff5722;  /* Deep orange */
+    --color-tertiary: #ff6f00;   /* Dark amber */
+}
+
+/* Warm colors for low frequencies (C3-B3) */
 .note-dot.warm {
     --color-primary: #ff6b35;    /* Warm orange-red */
     --color-secondary: #ff9f1c;  /* Golden */

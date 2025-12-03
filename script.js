@@ -1,30 +1,51 @@
 // ===== CONFIGURATION =====
 
 // Keyboard mapping to frequencies (in Hz)
-// Using a chromatic scale starting from C4 (middle C = 261.63 Hz)
+// Full chromatic scale covering ~3.5 octaves (C2 to A6)
+// 35 keys total across 4 rows
 const KEY_MAP = {
-    // Home row - lower octave (WARM colors)
-    'A': { freq: 261.63, colorClass: 'warm' },      // C4
-    'S': { freq: 293.66, colorClass: 'warm' },      // D4
-    'D': { freq: 329.63, colorClass: 'mid-warm' },  // E4
-    'F': { freq: 349.23, colorClass: 'mid-warm' },  // F4
-    'G': { freq: 392.00, colorClass: 'mid' },       // G4
-    'H': { freq: 440.00, colorClass: 'mid' },       // A4
-    'J': { freq: 493.88, colorClass: 'mid-cool' },  // B4
-    'K': { freq: 523.25, colorClass: 'mid-cool' },  // C5
-    'L': { freq: 587.33, colorClass: 'cool' },      // D5
+    // ===== ROW 4 (Numbers) - VERY LOW BASS NOTES (C2-C3) =====
+    '1': { freq: 65.41,  colorClass: 'very-warm' },  // C2
+    '2': { freq: 73.42,  colorClass: 'very-warm' },  // D2
+    '3': { freq: 82.41,  colorClass: 'very-warm' },  // E2
+    '4': { freq: 87.31,  colorClass: 'very-warm' },  // F2
+    '5': { freq: 98.00,  colorClass: 'very-warm' },  // G2
+    '6': { freq: 110.00, colorClass: 'very-warm' },  // A2
+    '7': { freq: 123.47, colorClass: 'very-warm' },  // B2
+    '8': { freq: 130.81, colorClass: 'warm' },       // C3
 
-    // Top row - higher octave (COOL colors)
-    'Q': { freq: 523.25, colorClass: 'mid-cool' },  // C5
-    'W': { freq: 587.33, colorClass: 'cool' },      // D5
-    'E': { freq: 659.25, colorClass: 'cool' },      // E5
-    'R': { freq: 698.46, colorClass: 'cool' },      // F5
-    'T': { freq: 783.99, colorClass: 'cool' },      // G5
-    'Y': { freq: 880.00, colorClass: 'cool' },      // A5
-    'U': { freq: 987.77, colorClass: 'ice' },       // B5
-    'I': { freq: 1046.50, colorClass: 'ice' },      // C6
-    'O': { freq: 1174.66, colorClass: 'ice' },      // D6
-    'P': { freq: 1318.51, colorClass: 'ice' }       // E6
+    // ===== ROW 1 (Z-M) - LOW NOTES (C3-B3) =====
+    'Z': { freq: 130.81, colorClass: 'warm' },       // C3
+    'X': { freq: 146.83, colorClass: 'warm' },       // D3
+    'C': { freq: 164.81, colorClass: 'warm' },       // E3
+    'V': { freq: 174.61, colorClass: 'warm' },       // F3
+    'B': { freq: 196.00, colorClass: 'warm' },       // G3
+    'N': { freq: 220.00, colorClass: 'mid-warm' },   // A3
+    'M': { freq: 246.94, colorClass: 'mid-warm' },   // B3
+
+    // ===== ROW 2 (A-;) - MIDDLE NOTES (C4-E5) =====
+    'A': { freq: 261.63, colorClass: 'mid-warm' },   // C4 (Middle C)
+    'S': { freq: 293.66, colorClass: 'mid-warm' },   // D4
+    'D': { freq: 329.63, colorClass: 'mid' },        // E4
+    'F': { freq: 349.23, colorClass: 'mid' },        // F4
+    'G': { freq: 392.00, colorClass: 'mid' },        // G4
+    'H': { freq: 440.00, colorClass: 'mid' },        // A4
+    'J': { freq: 493.88, colorClass: 'mid-cool' },   // B4
+    'K': { freq: 523.25, colorClass: 'mid-cool' },   // C5
+    'L': { freq: 587.33, colorClass: 'mid-cool' },   // D5
+    ';': { freq: 659.25, colorClass: 'cool' },       // E5
+
+    // ===== ROW 3 (Q-P) - HIGH NOTES (F5-A6) =====
+    'Q': { freq: 698.46,  colorClass: 'cool' },      // F5
+    'W': { freq: 783.99,  colorClass: 'cool' },      // G5
+    'E': { freq: 880.00,  colorClass: 'cool' },      // A5
+    'R': { freq: 987.77,  colorClass: 'cool' },      // B5
+    'T': { freq: 1046.50, colorClass: 'ice' },       // C6
+    'Y': { freq: 1174.66, colorClass: 'ice' },       // D6
+    'U': { freq: 1318.51, colorClass: 'ice' },       // E6
+    'I': { freq: 1396.91, colorClass: 'ice' },       // F6
+    'O': { freq: 1567.98, colorClass: 'ice' },       // G6
+    'P': { freq: 1760.00, colorClass: 'ice' }        // A6
 };
 
 // ===== WEB AUDIO API SETUP =====
@@ -116,49 +137,47 @@ const dotElements = {}; // Store dot elements by key
 function createDots() {
     const grid = document.getElementById('note-grid');
 
-    // Create dots in two rows (top row Q-P, bottom row A-L)
-    const topRowKeys = ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'];
-    const bottomRowKeys = ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'];
+    // Define all 4 keyboard rows (35 keys total)
+    const rows = [
+        { keys: ['1', '2', '3', '4', '5', '6', '7', '8'], label: 'Row 4 (Bass)' },
+        { keys: ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'], label: 'Row 3 (High)' },
+        { keys: ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ';'], label: 'Row 2 (Mid)' },
+        { keys: ['Z', 'X', 'C', 'V', 'B', 'N', 'M'], label: 'Row 1 (Low)' }
+    ];
 
     // Create a container for better layout control
     const container = document.createElement('div');
     container.style.display = 'flex';
     container.style.flexDirection = 'column';
-    container.style.gap = '80px';
+    container.style.gap = '70px';
 
-    // Create top row
-    const topRow = document.createElement('div');
-    topRow.style.display = 'flex';
-    topRow.style.gap = '80px';
-    topRow.style.justifyContent = 'center';
+    // Create each row
+    rows.forEach(({ keys, label }) => {
+        const rowDiv = document.createElement('div');
+        rowDiv.style.display = 'flex';
+        rowDiv.style.gap = '70px';
+        rowDiv.style.justifyContent = 'center';
+        rowDiv.style.alignItems = 'center';
+        rowDiv.dataset.rowLabel = label;
 
-    topRowKeys.forEach(key => {
-        if (KEY_MAP[key]) {
-            const dot = createDot(key);
-            topRow.appendChild(dot);
-            dotElements[key] = dot;
-        }
+        keys.forEach(key => {
+            if (KEY_MAP[key]) {
+                const dot = createDot(key);
+                rowDiv.appendChild(dot);
+                dotElements[key] = dot;
+            }
+        });
+
+        container.appendChild(rowDiv);
     });
 
-    // Create bottom row
-    const bottomRow = document.createElement('div');
-    bottomRow.style.display = 'flex';
-    bottomRow.style.gap = '80px';
-    bottomRow.style.justifyContent = 'center';
-
-    bottomRowKeys.forEach(key => {
-        if (KEY_MAP[key]) {
-            const dot = createDot(key);
-            bottomRow.appendChild(dot);
-            dotElements[key] = dot;
-        }
-    });
-
-    container.appendChild(topRow);
-    container.appendChild(bottomRow);
     grid.appendChild(container);
 
-    console.log('✨ Light dots created');
+    console.log('✨ Light dots created: 35 keys across 4 rows');
+    console.log('   Row 4: 1-8 (Bass C2-C3)');
+    console.log('   Row 3: Q-P (High F5-A6)');
+    console.log('   Row 2: A-; (Mid C4-E5)');
+    console.log('   Row 1: Z-M (Low C3-B3)');
 }
 
 /**
@@ -236,6 +255,7 @@ function deactivateDot(key) {
 
 /**
  * Update scene brightness based on number of active notes
+ * Adjusted thresholds for 35-key keyboard
  */
 function updateSceneBrightness() {
     const activeCount = Object.keys(activeOscillators).length;
@@ -244,9 +264,10 @@ function updateSceneBrightness() {
     document.body.classList.remove('many-active', 'very-active');
 
     // Add appropriate class based on active count
-    if (activeCount >= 7) {
+    // With 35 keys, adjusted thresholds: 6+ for "many", 12+ for "very"
+    if (activeCount >= 12) {
         document.body.classList.add('very-active');
-    } else if (activeCount >= 4) {
+    } else if (activeCount >= 6) {
         document.body.classList.add('many-active');
     }
 }
@@ -337,7 +358,11 @@ function init() {
     });
 
     console.log('✨ Light Piano ready! Press keys to play.');
-    console.log('🎵 Lower keys (A-L) = warm colors | Higher keys (Q-P) = cool colors');
+    console.log('🎵 35 keys mapped:');
+    console.log('   1-8: Deep bass (C2-C3) - Deep red/orange');
+    console.log('   Z-M: Low notes (C3-B3) - Warm orange');
+    console.log('   A-;: Middle (C4-E5) - Yellow-green-cyan');
+    console.log('   Q-P: High notes (F5-A6) - Blue-purple-ice');
 }
 
 // Start when DOM is ready
