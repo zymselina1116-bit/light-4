@@ -149,13 +149,13 @@ function createDots() {
     const container = document.createElement('div');
     container.style.display = 'flex';
     container.style.flexDirection = 'column';
-    container.style.gap = '70px';
+    container.style.gap = '120px'; // Isolated light orbs
 
     // Create each row
     rows.forEach(({ keys, label }) => {
         const rowDiv = document.createElement('div');
         rowDiv.style.display = 'flex';
-        rowDiv.style.gap = '70px';
+        rowDiv.style.gap = '120px'; // Wide spacing for photographic feel
         rowDiv.style.justifyContent = 'center';
         rowDiv.style.alignItems = 'center';
         rowDiv.dataset.rowLabel = label;
