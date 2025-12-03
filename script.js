@@ -1,22 +1,73 @@
 // ===== CONFIGURATION =====
 
-// Keyboard mapping to frequencies
+// Vibrant color palette for halos
+const COLORS = {
+    cyan: { r: 0, g: 255, b: 255 },
+    aqua: { r: 64, g: 224, b: 208 },
+    magenta: { r: 255, g: 0, b: 255 },
+    violet: { r: 148, g: 0, b: 211 },
+    deepBlue: { r: 0, g: 100, b: 255 },
+    skyBlue: { r: 100, g: 180, b: 255 },
+    gold: { r: 255, g: 215, b: 0 },
+    orange: { r: 255, g: 140, b: 0 },
+    rose: { r: 255, g: 105, b: 180 },
+    green: { r: 50, g: 255, b: 150 },
+    lime: { r: 150, g: 255, b: 50 },
+    pink: { r: 255, g: 150, b: 200 },
+    purple: { r: 200, g: 100, b: 255 },
+    yellow: { r: 255, g: 255, b: 100 },
+    coral: { r: 255, g: 127, b: 80 }
+};
+
+// Keyboard mapping: key → { frequency, color }
 const KEY_MAP = {
-    '1': 65.41,   '2': 73.42,   '3': 82.41,   '4': 87.31,
-    '5': 98.00,   '6': 110.00,  '7': 123.47,  '8': 130.81,
-    'Z': 130.81,  'X': 146.83,  'C': 164.81,  'V': 174.61,
-    'B': 196.00,  'N': 220.00,  'M': 246.94,
-    'A': 261.63,  'S': 293.66,  'D': 329.63,  'F': 349.23,
-    'G': 392.00,  'H': 440.00,  'J': 493.88,  'K': 523.25,
-    'L': 587.33,  ';': 659.25,
-    'Q': 698.46,  'W': 783.99,  'E': 880.00,  'R': 987.77,
-    'T': 1046.50, 'Y': 1174.66, 'U': 1318.51, 'I': 1396.91,
-    'O': 1567.98, 'P': 1760.00
+    // Row 4 (Numbers) - Bass
+    '1': { freq: 65.41, color: 'deepBlue' },
+    '2': { freq: 73.42, color: 'violet' },
+    '3': { freq: 82.41, color: 'magenta' },
+    '4': { freq: 87.31, color: 'rose' },
+    '5': { freq: 98.00, color: 'coral' },
+    '6': { freq: 110.00, color: 'orange' },
+    '7': { freq: 123.47, color: 'gold' },
+    '8': { freq: 130.81, color: 'yellow' },
+
+    // Row 1 (ZXCV) - Low
+    'Z': { freq: 130.81, color: 'cyan' },
+    'X': { freq: 146.83, color: 'aqua' },
+    'C': { freq: 164.81, color: 'lime' },
+    'V': { freq: 174.61, color: 'green' },
+    'B': { freq: 196.00, color: 'skyBlue' },
+    'N': { freq: 220.00, color: 'cyan' },
+    'M': { freq: 246.94, color: 'aqua' },
+
+    // Row 2 (ASDF) - Mid
+    'A': { freq: 261.63, color: 'violet' },
+    'S': { freq: 293.66, color: 'purple' },
+    'D': { freq: 329.63, color: 'pink' },
+    'F': { freq: 349.23, color: 'rose' },
+    'G': { freq: 392.00, color: 'coral' },
+    'H': { freq: 440.00, color: 'orange' },
+    'J': { freq: 493.88, color: 'gold' },
+    'K': { freq: 523.25, color: 'yellow' },
+    'L': { freq: 587.33, color: 'lime' },
+    ';': { freq: 659.25, color: 'green' },
+
+    // Row 3 (QWER) - High
+    'Q': { freq: 698.46, color: 'skyBlue' },
+    'W': { freq: 783.99, color: 'cyan' },
+    'E': { freq: 880.00, color: 'aqua' },
+    'R': { freq: 987.77, color: 'deepBlue' },
+    'T': { freq: 1046.50, color: 'violet' },
+    'Y': { freq: 1174.66, color: 'purple' },
+    'U': { freq: 1318.51, color: 'magenta' },
+    'I': { freq: 1396.91, color: 'pink' },
+    'O': { freq: 1567.98, color: 'rose' },
+    'P': { freq: 1760.00, color: 'coral' }
 };
 
 // ===== CANVAS SETUP =====
 
-const canvas = document.getElementById('reality-canvas');
+const canvas = document.getElementById('light-canvas');
 const ctx = canvas.getContext('2d');
 
 let width, height, centerX, centerY;
@@ -54,9 +105,9 @@ function playNote(key) {
     const gainNode = audioContext.createGain();
 
     oscillator.type = 'sine';
-    oscillator.frequency.setValueAtTime(KEY_MAP[key], audioContext.currentTime);
+    oscillator.frequency.setValueAtTime(KEY_MAP[key].freq, audioContext.currentTime);
     gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.5, audioContext.currentTime + 0.03);
+    gainNode.gain.exponentialRampToValueAtTime(0.5, audioContext.currentTime + 0.02);
 
     oscillator.connect(gainNode);
     gainNode.connect(masterGain);
@@ -73,304 +124,141 @@ function stopNote(key) {
 
     gainNode.gain.cancelScheduledValues(currentTime);
     gainNode.gain.setValueAtTime(gainNode.gain.value, currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.001, currentTime + 0.5);
-    oscillator.stop(currentTime + 0.5);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, currentTime + 0.3);
+    oscillator.stop(currentTime + 0.3);
 
     delete activeOscillators[key];
 }
 
-// ===== CRACK SYSTEM =====
+// ===== HALO SYSTEM =====
 
-class CrackBranch {
-    constructor(startX, startY, angle, length, width, generation = 0) {
-        this.startX = startX;
-        this.startY = startY;
-        this.angle = angle;
-        this.length = length;
-        this.width = width;
-        this.generation = generation;
-        this.growth = 0; // 0 to 1
-        this.targetGrowth = 0;
-        this.points = [];
-        this.glowIntensity = 0;
-        this.generateJaggedPath();
-    }
+class LightHalo {
+    constructor(key, colorName) {
+        // Position near center with slight randomization
+        const spread = Math.min(width, height) * 0.15;
+        this.x = centerX + (Math.random() - 0.5) * spread;
+        this.y = centerY + (Math.random() - 0.5) * spread;
 
-    generateJaggedPath() {
-        // Create jagged, lightning-like path
-        const segments = Math.floor(this.length / 8) + 3;
-        this.points = [];
-
-        for (let i = 0; i <= segments; i++) {
-            const t = i / segments;
-            const baseX = this.startX + Math.cos(this.angle) * this.length * t;
-            const baseY = this.startY + Math.sin(this.angle) * this.length * t;
-
-            // Add jagged offsets perpendicular to direction
-            const perpAngle = this.angle + Math.PI / 2;
-            const maxOffset = this.width * 0.5;
-            const offset = (Math.random() - 0.5) * maxOffset * (1 - Math.abs(t - 0.5) * 0.5);
-
-            this.points.push({
-                x: baseX + Math.cos(perpAngle) * offset,
-                y: baseY + Math.sin(perpAngle) * offset
-            });
-        }
+        this.key = key;
+        this.color = COLORS[colorName];
+        this.baseRadius = 250 + Math.random() * 150; // 250-400px
+        this.radius = this.baseRadius;
+        this.targetScale = 1;
+        this.scale = 0.8;
+        this.intensity = 0;
+        this.targetIntensity = 1;
+        this.life = 1; // 0 to 1
+        this.active = true;
     }
 
     update(deltaTime) {
-        // Smooth growth animation
-        this.growth += (this.targetGrowth - this.growth) * deltaTime * 3;
-        this.glowIntensity *= 0.95; // Decay glow
-    }
+        // Smooth scale animation
+        this.scale += (this.targetScale - this.scale) * deltaTime * 8;
 
-    pulse() {
-        this.glowIntensity = Math.min(this.glowIntensity + 0.3, 1);
-    }
+        // Smooth intensity animation
+        this.intensity += (this.targetIntensity - this.intensity) * deltaTime * 6;
 
-    draw(ctx, baseGlow = 1) {
-        if (this.growth < 0.01) return;
-
-        const currentLength = Math.floor(this.points.length * this.growth);
-        if (currentLength < 2) return;
-
-        const glowAmount = baseGlow * (0.5 + this.glowIntensity * 0.5);
-
-        // Draw multiple glow layers for depth
-        for (let layer = 0; layer < 3; layer++) {
-            ctx.beginPath();
-            ctx.moveTo(this.points[0].x, this.points[0].y);
-
-            for (let i = 1; i < currentLength; i++) {
-                ctx.lineTo(this.points[i].x, this.points[i].y);
-            }
-
-            const layerWidth = this.width * (3 - layer) * 0.5;
-            const layerAlpha = glowAmount * (layer === 0 ? 0.9 : layer === 1 ? 0.5 : 0.2);
-
-            // Inner light colors
-            const colors = [
-                `rgba(255, 255, 255, ${layerAlpha})`,
-                `rgba(0, 255, 255, ${layerAlpha * 0.6})`,
-                `rgba(255, 100, 255, ${layerAlpha * 0.4})`
-            ];
-
-            ctx.strokeStyle = colors[layer % 3];
-            ctx.lineWidth = layerWidth;
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
-            ctx.shadowBlur = layerWidth * 4 * glowAmount;
-            ctx.shadowColor = colors[layer % 3];
-            ctx.stroke();
+        // Fade out when not active
+        if (!this.active) {
+            this.life = Math.max(0, this.life - deltaTime * 1.5);
+            this.targetIntensity = 0;
         }
 
-        ctx.shadowBlur = 0;
-    }
-}
-
-class CrackSystem {
-    constructor() {
-        this.branches = [];
-        this.energy = 0; // Total accumulated stress
-        this.stage = 0; // 0: dormant, 1: initial, 2: expansion, 3: breaking, 4: explosion
-        this.pulseIntensity = 0;
-        this.explosionProgress = 0;
-        this.shakeX = 0;
-        this.shakeY = 0;
-        this.brightWorld = false;
-        this.particles = [];
+        // Update radius
+        this.radius = this.baseRadius * this.scale;
     }
 
-    addEnergy(amount) {
-        this.energy += amount;
-        this.pulseIntensity = Math.min(this.pulseIntensity + 0.5, 1);
-
-        // Pulse all existing branches
-        this.branches.forEach(branch => branch.pulse());
-
-        // Stage progression
-        if (this.energy > 200 && this.stage < 4) {
-            this.explode();
-        } else if (this.energy > 100 && this.stage < 3) {
-            this.stage = 3;
-            this.addBranches(5);
-        } else if (this.energy > 40 && this.stage < 2) {
-            this.stage = 2;
-            this.addBranches(3);
-        } else if (this.energy > 5 && this.stage < 1) {
-            this.stage = 1;
-            this.createInitialCrack();
-        }
-
-        // Random new branches as energy builds
-        if (this.stage >= 2 && Math.random() < 0.1) {
-            this.addRandomBranch();
-        }
+    activate() {
+        this.active = true;
+        this.life = 1;
+        this.targetScale = 1.2;
+        this.targetIntensity = 1;
     }
 
-    createInitialCrack() {
-        // First tiny crack in the center
-        const angle = Math.random() * Math.PI * 2;
-        const branch = new CrackBranch(centerX, centerY, angle, 60, 2, 0);
-        branch.targetGrowth = 1;
-        this.branches.push(branch);
-    }
-
-    addBranches(count) {
-        for (let i = 0; i < count; i++) {
-            this.addRandomBranch();
-        }
-    }
-
-    addRandomBranch() {
-        if (this.branches.length === 0) return;
-
-        // Branch off from existing cracks
-        const parent = this.branches[Math.floor(Math.random() * this.branches.length)];
-        const t = 0.3 + Math.random() * 0.5;
-        const pointIndex = Math.floor(parent.points.length * t * parent.growth);
-
-        if (pointIndex >= parent.points.length) return;
-
-        const point = parent.points[pointIndex];
-        const angleOffset = (Math.random() - 0.5) * Math.PI * 0.8;
-        const newAngle = parent.angle + angleOffset;
-        const length = 40 + Math.random() * 80 * (1 + this.energy / 100);
-        const width = 1.5 + Math.random() * 2;
-
-        const branch = new CrackBranch(point.x, point.y, newAngle, length, width, parent.generation + 1);
-        branch.targetGrowth = 1;
-        this.branches.push(branch);
-    }
-
-    explode() {
-        this.stage = 4;
-        this.explosionProgress = 0;
-
-        // Create explosion particles
-        for (let i = 0; i < 100; i++) {
-            const angle = Math.random() * Math.PI * 2;
-            const speed = 2 + Math.random() * 8;
-            this.particles.push({
-                x: centerX,
-                y: centerY,
-                vx: Math.cos(angle) * speed,
-                vy: Math.sin(angle) * speed,
-                life: 1,
-                size: 2 + Math.random() * 4,
-                color: ['#ffffff', '#00ffff', '#ff00ff', '#ffff00'][Math.floor(Math.random() * 4)]
-            });
-        }
-
-        // Make all branches fully visible
-        this.branches.forEach(branch => {
-            branch.targetGrowth = 1;
-            branch.glowIntensity = 1;
-        });
-    }
-
-    update(deltaTime) {
-        // Update all branches
-        this.branches.forEach(branch => branch.update(deltaTime));
-
-        // Pulse decay
-        this.pulseIntensity *= 0.9;
-
-        // Screen shake in stage 3+
-        if (this.stage >= 3) {
-            const shakeAmount = (this.stage === 3 ? 2 : 5) * this.pulseIntensity;
-            this.shakeX = (Math.random() - 0.5) * shakeAmount;
-            this.shakeY = (Math.random() - 0.5) * shakeAmount;
-        } else {
-            this.shakeX *= 0.8;
-            this.shakeY *= 0.8;
-        }
-
-        // Explosion progression
-        if (this.stage === 4) {
-            this.explosionProgress = Math.min(this.explosionProgress + deltaTime * 0.5, 1);
-
-            // Update particles
-            this.particles.forEach(p => {
-                p.x += p.vx;
-                p.y += p.vy;
-                p.vy += 0.1; // Gravity
-                p.life *= 0.98;
-            });
-
-            // Transition to bright world
-            if (this.explosionProgress > 0.7) {
-                this.brightWorld = true;
-            }
-        }
+    deactivate() {
+        this.active = false;
+        this.targetScale = 0.9;
     }
 
     draw(ctx) {
-        ctx.save();
+        if (this.life <= 0) return;
 
-        // Apply screen shake
-        ctx.translate(this.shakeX, this.shakeY);
+        const alpha = this.intensity * this.life;
+        const r = this.radius;
 
-        // Background flash during explosion
-        if (this.stage === 4) {
-            const flashIntensity = Math.sin(this.explosionProgress * Math.PI) * 0.5;
-            ctx.fillStyle = `rgba(255, 255, 255, ${flashIntensity})`;
-            ctx.fillRect(-this.shakeX, -this.shakeY, width, height);
-        }
+        // Create radial gradient for halo
+        const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, r);
 
-        // Draw all crack branches
-        const baseGlow = 0.5 + this.pulseIntensity * 0.5 + (this.stage / 4) * 0.5;
-        this.branches.forEach(branch => branch.draw(ctx, baseGlow));
+        // Bright white core
+        gradient.addColorStop(0, `rgba(255, 255, 255, ${alpha})`);
+        gradient.addColorStop(0.02, `rgba(255, 255, 255, ${alpha * 0.9})`);
 
-        // Draw explosion particles
-        if (this.stage === 4) {
-            this.particles.forEach(p => {
-                if (p.life < 0.01) return;
-                ctx.fillStyle = p.color.replace(')', `, ${p.life})`).replace('rgb', 'rgba');
-                ctx.shadowBlur = 20 * p.life;
-                ctx.shadowColor = p.color;
-                ctx.fillRect(p.x, p.y, p.size, p.size);
-            });
-            ctx.shadowBlur = 0;
-        }
+        // Transition to color
+        gradient.addColorStop(0.08, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, ${alpha * 0.8})`);
+        gradient.addColorStop(0.15, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, ${alpha * 0.6})`);
 
-        // Bright world transition
-        if (this.brightWorld) {
-            const brightness = (this.explosionProgress - 0.7) / 0.3;
-            const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, Math.max(width, height));
-            gradient.addColorStop(0, `rgba(255, 255, 255, ${brightness})`);
-            gradient.addColorStop(0.5, `rgba(200, 255, 255, ${brightness * 0.8})`);
-            gradient.addColorStop(1, `rgba(255, 200, 255, ${brightness * 0.6})`);
-            ctx.fillStyle = gradient;
-            ctx.fillRect(-this.shakeX, -this.shakeY, width, height);
-        }
+        // Soft color falloff
+        gradient.addColorStop(0.35, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, ${alpha * 0.4})`);
+        gradient.addColorStop(0.60, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, ${alpha * 0.2})`);
+        gradient.addColorStop(0.85, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, ${alpha * 0.05})`);
+        gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
 
-        ctx.restore();
+        ctx.fillStyle = gradient;
+        ctx.fillRect(this.x - r, this.y - r, r * 2, r * 2);
+    }
+
+    isDead() {
+        return this.life <= 0 && !this.active;
     }
 }
 
-// ===== MAIN SYSTEM =====
+const halos = new Map(); // key → LightHalo
 
-const crackSystem = new CrackSystem();
+function getOrCreateHalo(key) {
+    if (halos.has(key)) {
+        return halos.get(key);
+    }
+
+    const halo = new LightHalo(key, KEY_MAP[key].color);
+    halos.set(key, halo);
+    return halo;
+}
+
+// ===== ANIMATION LOOP =====
+
 let lastTime = performance.now();
-const pressedKeys = new Set();
 
 function animate(currentTime) {
     const deltaTime = Math.min((currentTime - lastTime) / 1000, 0.1);
     lastTime = currentTime;
 
-    // Clear canvas
+    // Clear canvas with pure black
     ctx.fillStyle = '#000000';
     ctx.fillRect(0, 0, width, height);
 
-    // Update and draw crack system
-    crackSystem.update(deltaTime);
-    crackSystem.draw(ctx);
+    // Enable additive blending
+    ctx.globalCompositeOperation = 'lighter';
+
+    // Update and draw all halos
+    halos.forEach((halo, key) => {
+        halo.update(deltaTime);
+        halo.draw(ctx);
+
+        // Remove dead halos
+        if (halo.isDead()) {
+            halos.delete(key);
+        }
+    });
+
+    // Reset to normal blending
+    ctx.globalCompositeOperation = 'source-over';
 
     requestAnimationFrame(animate);
 }
 
 // ===== KEYBOARD HANDLERS =====
+
+const pressedKeys = new Set();
 
 function handleKeyDown(e) {
     const key = e.key.toUpperCase();
@@ -388,8 +276,9 @@ function handleKeyDown(e) {
     // Play sound
     playNote(key);
 
-    // Add energy to crack system
-    crackSystem.addEnergy(1);
+    // Create/activate halo
+    const halo = getOrCreateHalo(key);
+    halo.activate();
 }
 
 function handleKeyUp(e) {
@@ -398,7 +287,14 @@ function handleKeyUp(e) {
 
     e.preventDefault();
     pressedKeys.delete(key);
+
+    // Stop sound
     stopNote(key);
+
+    // Deactivate halo
+    if (halos.has(key)) {
+        halos.get(key).deactivate();
+    }
 }
 
 // ===== INITIALIZATION =====
@@ -410,15 +306,13 @@ document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
         Object.keys(activeOscillators).forEach(key => stopNote(key));
         pressedKeys.clear();
+        halos.forEach(halo => halo.deactivate());
     }
 });
 
 // Start animation
 animate(performance.now());
 
-console.log('🎹 Reality Tear Piano initialized');
-console.log('💥 Play to crack open the darkness!');
-console.log('   Stage 1: First fracture (5+ keys)');
-console.log('   Stage 2: Expansion (40+ keys)');
-console.log('   Stage 3: Breaking point (100+ keys)');
-console.log('   Stage 4: EXPLOSION (200+ keys)');
+console.log('💡 Light Halo Piano initialized');
+console.log('🌈 35 keys • Each creates a huge glowing halo');
+console.log('🎨 Additive blending • Overlapping halos merge beautifully');

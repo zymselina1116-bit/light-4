@@ -15,7 +15,7 @@ body {
 }
 
 /* ===== CANVAS ===== */
-#reality-canvas {
+#light-canvas {
     position: absolute;
     top: 0;
     left: 0;
@@ -32,25 +32,25 @@ body {
     left: 50%;
     transform: translate(-50%, -50%);
     text-align: center;
-    color: rgba(200, 200, 200, 0.3);
+    color: rgba(220, 220, 220, 0.25);
     pointer-events: none;
     transition: opacity 1s ease-out;
     z-index: 10;
-    text-shadow: 0 0 20px rgba(0, 0, 0, 0.9);
+    text-shadow: 0 0 30px rgba(0, 0, 0, 0.9);
 }
 
 #instructions p {
-    font-size: 18px;
-    margin: 14px 0;
-    letter-spacing: 5px;
-    font-weight: 300;
+    font-size: 20px;
+    margin: 16px 0;
+    letter-spacing: 6px;
+    font-weight: 200;
 }
 
 #instructions .subtitle {
-    font-size: 13px;
-    margin-top: 30px;
+    font-size: 14px;
+    margin-top: 35px;
     font-style: italic;
-    letter-spacing: 3px;
+    letter-spacing: 4px;
     opacity: 0.6;
 }
 
